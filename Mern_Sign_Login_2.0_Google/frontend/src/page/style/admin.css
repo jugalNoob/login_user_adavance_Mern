@@ -1,0 +1,30 @@
+.admin-container {
+    padding: 20px;
+    background-color: #080808;
+    height: 100vh;
+  }
+  
+  .users-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap:50px;
+  }
+  
+  .user-card {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 8px;
+    width: 320px;
+  }
+
+  .user-card h2{
+    font-size: 1rem;
+    font-family: "Roboto", sans-serif;
+  }
+  
+  .error-message {
+    color: red;
+    font-weight: bold;
+  }
+  
