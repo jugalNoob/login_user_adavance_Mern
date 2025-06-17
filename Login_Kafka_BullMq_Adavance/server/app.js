@@ -40,6 +40,8 @@
 
 const express = require("express");
 const connectDB = require("./db/conn");
+
+const cookieParser = require('cookie-parser');
 const router = require("./routes/router");
 const startServer = require('./Cluster/clust');
 const redisClient = require("./Redis/redisClient");
@@ -63,6 +65,8 @@ app.use(cors(corsOptions));
 app.use(TimeDate); // Apply the middleware globally
 app.use(router);
 
+app.use(cookieParser());
+
 
 
 // Start cluster (workers will listen)
@@ -79,3 +83,6 @@ process.on("SIGINT", async () => {
 
 
 module.exports = app; // Export only `app`
+
+
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiI2ODUxNTM0NjQ5NDlkM2VmMjcxOWQzNWUiLCJlbWFpbCI6InJpbGVsODE5NjZAbGluYWNpdC5jb20iLCJpYXQiOjE3NTAxNjAyMTAsImV4cCI6MTc1MDE3MTAxMH0.BY1ITaeUUpSQVCCp4asVG-99FSZAfnKgxWtEaDg5cjw

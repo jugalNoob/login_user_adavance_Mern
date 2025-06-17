@@ -1,13 +1,13 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const Register = require('../models/student');
+const Register = require('../module/student');
 // const keysecret ="kjnxcahbkhjbdscjghydcsbhjugtydcsgudcxasxytgdcsgdtgcs"
-const keysecret = process.env.SECRET_KEY
+const keysecret ="khjjhuhuidsuiuiojfsioujiojfuvuiojfvjiofvdoiujfvdoiujvfoijvf"
 const authenticate = async (req, res, next) => {
    
     const token = req.header("Authorization");
-    // console.log(req.header("Authorization"));
-    // console.log(token ,)
+    console.log(req.header("Authorization"));
+    console.log(token )
     if (!token) {
       // If you attempt to use an expired token, you'll receive a "401 Unauthorized HTTP" response.
       return res
@@ -22,7 +22,7 @@ const authenticate = async (req, res, next) => {
     try {
       // Verifying the token
       const isVerified = jwt.verify(jwtToken, keysecret );
-    //   console.log(isVerified  , "i am verfy" );
+      console.log(isVerified  , "i am verfy" );
   
       // getting the complete user details & also we don't want password to be sent
       const userData = await Register.findOne({ email: isVerified.email })
@@ -35,6 +35,7 @@ const authenticate = async (req, res, next) => {
       // Move on to the next middleware or route handler
       next();
     } catch (error) {
+      console.log(error)
       return res.status(401).json({ message: "Unauthorized. Invalid token." });
     
 }

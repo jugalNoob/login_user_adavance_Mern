@@ -43,24 +43,31 @@ const studentSchema = new mongoose.Schema({
  
 });
 
+/// ------------------------
+
+
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiI2ODUxNTI1NTQ5NDlkM2VmMjcxOWQzNWIiLCJlbWFpbCI6InJpbGVsODE5NjZAbGluYWNpdC5jb20iLCJpYXQiOjE3NTAxNTk5NjcsImV4cCI6MTc1MDE3MDc2N30.h9-167EUzvz_CS-gGI8Fo7Zhqt78pDan3EyxNWHCsXQ
+
 
 studentSchema.methods.generateAuthtokens = async function () {
   try {
-    let token23 = jwt.sign(
+    const token23 = jwt.sign(
       {
         userID: this._id.toString(),
         email: this.email,
       },
-keysecret
+      keysecret,
+      { expiresIn: "3h" }
     );
 
-    this.tokens = this.tokens.concat({ token: token23 });
+    this.tokens = [{ token: token23 }]; // ✅ Replace old tokens
     await this.save();
     return token23;
   } catch (error) {
     throw new Error("Token generation failed: " + error.message);
   }
 };
+
 
 /// Create cryptography 
 
