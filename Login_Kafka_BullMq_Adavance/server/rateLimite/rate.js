@@ -3,7 +3,7 @@ let resetInProgress = false; // Prevent multiple resets
 
 // Middleware for counter logic
 const counterMiddleware = (req, res, next) => {
-    if (one >= 4) {
+    if (one >= 15) {
         if (!resetInProgress) {
             resetInProgress = true;
             console.log("Reset will occur in 5 seconds.");
