@@ -1,71 +1,98 @@
     //   user: "sjugal126@gmail.com", // use .env
     //     pass: "chxe ihkr uqwq okqs",
 
-const { Worker } = require('bullmq');
+const { Worker, Queue } = require('bullmq');
 const nodemailer = require('nodemailer');
-
 const IORedis = require('ioredis');
-const GenOtp = require('./OPT/otp'); // ✅ Your OTP generator
+const GenOtp = require('./OPT/otp');
+// const handleDlqFailure = require('./DlqQueuesNot'); // ✅ Import DLQ logic
 require('dotenv').config();
 
 const connection = {
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
-  maxRetriesPerRequest: null
+  maxRetriesPerRequest: null,
 };
 
 const redis = new IORedis(connection);
 
-// BullMQ Worker
+
+
 const worker = new Worker(
   'emailQueue',
   async job => {
     const { name, email, shortId } = job.data;
-
-    // ✅ Generate OTP
     const otp = GenOtp();
 
-    // ✅ Store in Redis (5 min expiry)
-    await redis.set(`otp:${email}`, otp, 'EX', 300);
+    console.log(otp)
 
-    // ✅ Setup mail transporter
+  // await redis.set(`otp:${email}`, otp, 'EX', 1800); // 30 minutes = 1800 seconds
+
+
+  await redis.set(`otp:${email}`, otp, 'EX', 3600); // 30 mins
+const ttl = await redis.ttl(`otp:${email}`);
+console.log(`✅ OTP ${otp} set for ${email} with TTL: ${ttl} seconds`);
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: "sjugal126@gmail.com", // use .env
-        pass: "chxe ihkr uqwq okqs",
+        user: "sjugal126@gmail.com",
+       pass: "chxe ihkr uqwq okqs",
       },
     });
 
-    // ✅ Compose message
-   
     const mailOptions = {
-  from: "sjugal126@gmail.com",
-  to: email,
-  subject: 'Welcome to Our Service!',
-  html: `
-    <div style="font-family: Arial, sans-serif; padding: 10px;">
-      <p>Hi <strong>${name}</strong>,</p>
-      <p>Thank you for registering. Your user ID is <strong>${shortId}</strong>.</p>
-      <p style="font-size: 18px;">Your OTP is: <b style="color: #2E86C1;">${otp}</b></p>
-      <p>Please use this to verify your account.</p>
-      <br>
-      <p style="font-size: 12px; color: gray;">This OTP will expire in 5 minutes.</p>
-    </div>
-  `
-};
+      from: "sjugal@gmail126.com",
+      to: email,
+      subject: 'Welcome to Our Service!',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 10px;">
+          <p>Hi <strong>${name}</strong>,</p>
+          <p>Thank you for registering. Your user ID is <strong>${shortId}</strong>.</p>
+          <p style="font-size: 18px;">Your OTP is: <b style="color: #2E86C1;">${otp}</b></p>
+          <p>Please use this to verify your account.</p>
+          <br>
+          <p style="font-size: 12px; color: gray;">This OTP will expire in 5 minutes.</p>
+        </div>
+      `,
+    };
+
     await transporter.sendMail(mailOptions);
     console.log(`✅ OTP ${otp} sent to ${email}`);
   },
-  { connection }
+  {
+    connection,
+   // attempts: 3, // retry job 3 times before failing
+   // removeOnComplete: true,
+   // removeOnFail: false, // we want to catch failed jobs
+  }
 );
+
+// ✅ Log when a job completes
+worker.on('completed', job => {
+  console.log(`🎉 Job ${job.id} completed successfully`);
+});
+
+// ❌ Move failed jobs to DLQ
+worker.on('failed', async (job, err) => {
+  console.error(`❌ Job ${job?.id} failed: ${err.message}`);
+ 
+
+});
+
+
+
+
+
+
+// -------------- >Simple bullMQ nodemailer --------------------->>>
 
 // const { Worker } = require('bullmq');
 // const nodemailer = require('nodemailer');
 // const IORedis = require('ioredis');
 // require('dotenv').config(); // ⬅️ Load env variables
 // const otpStore = require("./utils/otpStore"); // ✅ Import otpStore
-// const GenOtp=require("./OPT/otp") // gen Your OPT 
+// const GenOtp=require('./OPT/otp') // gen Your OPT 
 
 // // Redis connection
 // const connection = new IORedis({
@@ -99,6 +126,7 @@ const worker = new Worker(
 //     expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
 //   };
 
+//   console.log(otp)
 
 //     const mailOptions = {
 //       from: "",

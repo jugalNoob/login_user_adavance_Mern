@@ -1,9 +1,11 @@
 version: '3'
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+
   kafka:
     image: confluentinc/cp-kafka
     depends_on:
@@ -15,59 +17,61 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.168.29.78:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
 
-# docker-compose up -d
+    
+#   mongodb:
+#     image: mongo
+#     volumes:
+#       - data:/data/db
+#     networks:
+#       - backend_network
 
-# docker exec kafka kafka-topics --list --bootstrap-server 192.168.29.78:9092
-
-
-# docker ps
-
-
-# version: '3.8'
-
-# services:
-#   zookeeper:
-#     image: confluentinc/cp-zookeeper:latest
-#     container_name: zookeeper
-#     ports:
-#       - "2181:2181"
-#     environment:
-#       ZOOKEEPER_CLIENT_PORT: 2181
-
-#   kafka:
-#     image: confluentinc/cp-kafka:latest
-#     container_name: kafka
-#     ports:
-#       - "9092:9092"
-#     depends_on:
-#       - zookeeper
-#     environment:
-#       KAFKA_BROKER_ID: 1
-#       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-#       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-#       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-#       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-#   redis:
-#     image: redis:latest
-#     container_name: redis
-#     ports:
-#       - "6379:6379"
-
-#   node-app:
-#     build: .
-#     container_name: node-app
+#   backend:
+#     build: ./backend
+#     container_name: backend-container
 #     ports:
 #       - "9000:9000"
+#     volumes:
+#       - ./backend:/app
+#     working_dir: /app
+#     command: ["npm", "run", "dev"]
+#     environment:
+#       - NODE_ENV=development
 #     depends_on:
 #       - kafka
 #       - redis
-#     environment:
-#       KAFKA_BROKER: kafka:9092
-#       REDIS_HOST: redis
-#       REDIS_PORT: 6379
+#       - mongodb
+#     networks:
+#       - backend_network
+
+#   frontend:
+#     build: ./frontend
+#     ports:
+#       - "3000:3000"
 #     volumes:
-#       - .:/app
-#     working_dir: /app
-#     command: ["node", "index.js"]
+#       - ./frontend/src:/app/src
+#     stdin_open: true
+#     tty: true
+#     networks:
+#       - frontend_network
+#       - backend_network
+
+# # Volumes
+# volumes:
+#   data:
+
+# # Networks
+# networks:
+#   backend_network:
+#   frontend_network:
+
+
+
+
+

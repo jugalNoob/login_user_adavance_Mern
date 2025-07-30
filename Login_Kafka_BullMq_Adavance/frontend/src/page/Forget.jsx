@@ -1,134 +1,90 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import React, { useState, useRef } from "react";
+
+const Update = () => {
+  const [id, setId] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
 
-// $2a$12$egWIE9wcbXtqV1fo8SNNPuNMuNRuPdlyYYH02PwSg10n3urx0/mwm"
+  const timeoutRef = useRef(null);  // persist timeout between renders
+  const countRef = useRef(0);       // persist click count between renders
 
-function Forget() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({});
-
-  const handleValidation = () => {
-    let errors = {};
-
-    // Your validation logic here
-
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const [optall , setOpt]=useState()
-  const Opts=()=>{
-    const optss=Math.floor(Math.random()*12345)
-setOpt(optss)
-  }
-
-  let timeout;
-  
-  useEffect(() => {
-    return () => {
-      // Clear timeout on component unmount
-      clearTimeout(timeout);
-    };
-  }, []);
-  
-
-  const addUserdata = async (e) => {
+  const handleUpdate = (e) => {
     e.preventDefault();
-    
-    clearTimeout(timeout);
-    timeout = setTimeout(async () => {
-    try {
-      if (!password || !email  || !optall) {
-        alert('Missing required fields');
-      } else {
-        const isValid = handleValidation();
+    console.log("Click Count:", countRef.current++);
 
-        if (isValid) {
-          const data = await fetch(`http://localhost:9000/forget`, {
-            method: 'PATCH',
+    clearTimeout(timeoutRef.current);  // Cancel previous pending update
+
+    timeoutRef.current = setTimeout(async () => {
+      try {
+        const data = { password };
+        const response = await axios.patch(
+          `http://localhost:9000/v1/forget/${id}/${email}`,
+          data,
+          {
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({email, password }),
-          });
-
-          const res = await data.json();
-          console.log(res);
-
-          if (res.status === 201) {
-            alert('Check your form');
-            navigate("/");
-          } else {
-          
-            console.log(email, password);
           }
+        );
+
+        if (response.status === 200) {
+          alert("Student updated successfully!");
+        } else {
+          alert("Failed to update student data.");
         }
+      } catch (error) {
+        console.error("Error updating student:", error);
+        alert("An error occurred while updating student data.");
       }
-    } catch (error) {
-      console.log(error);
-    }
-  },2000)
+    }, 2000); // Delay of 2 seconds
   };
 
   return (
-    <div>
-
-<div className="allform">
-<div className="Ramdoms">
-  <center>
-<h1>Opt:: {optall ? optall :"no opt"}</h1>
-<br />
-<button onClick={Opts}>click</button>
-</center>
-</div>
-<div className='forms'>
-
-      <form onSubmit={addUserdata}>
-        <center>
-          <input type="text" name="" id="" onChange={(e)=>setOpt(e.target.value)}  placeholder='enter opt'/>
-          <br />
-          <br />
+    <div style={{ width: "100%", maxWidth: "500px", margin: "0 auto" }}>
+      <h2>Update Student</h2>
+      <form onSubmit={handleUpdate}>
+        <label>
+          Student ID:
           <input
-            type="email"
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="enter email"
+            type="text"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+            required
+            placeholder="Enter student ID"
           />
-          <br />
-          <br />
+        </label>
+        <br />
+        <label>
+          Email:
+          <input
+            type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="Enter student email"
+          />
+        </label>
+        <br />
+        <label>
+          Name:
           <input
             type="password"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="enter password"
+            placeholder="Enter student name"
           />
-          <br />
-          <br />
-          <button type="submit">forget</button>
-        </center>
+        </label>
+        <br />
+     
+        <br />
+      
+        <br />
+        <button type="submit">Update Student</button>
       </form>
-      </div>
-    </div>
     </div>
   );
-}
+};
 
-export default Forget;
-
-
-// "$2a$12$egWIE9wcbXtqV1fo8SNNPuNMuNRuPdlyYYH02PwSg10n3urx0/mwm"
-// /"$2a$12$egWIE9wcbXtqV1fo8SNNPuNMuNRuPdlyYYH02PwSg10n3urx0/mwm"
-//Password -- jugal786123
-
-
-// {name: 'JANAD sharma', email: 'janad@gamil.com', shortId: '-IMUfKMce'}
-// email
-// : 
-// "janad@gamil.com"
-// name
-// : 
-// "JANAD sharma"
-// shortId
-// : 
-// "-IMUfKMce"
+export default Update;

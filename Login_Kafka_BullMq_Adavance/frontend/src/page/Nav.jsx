@@ -17,6 +17,7 @@ function Nav() {
             <NavLink to="/login">Login</NavLink><br /><br />
             <NavLink to="/dash">Dash</NavLink><br /><br />
             <NavLink to="/forget">Forget</NavLink><br /><br />
+            <NavLink to="/dashboardg" >GitHub Dashboard</NavLink>
           
           </nav>
           {/* Renders child routes */}

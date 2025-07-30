@@ -3,13 +3,12 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import Admin from './page/Admin';
 import Dash from './page/Dash';
-import Dashg from './page/Dashg';
 import Forget from './page/Forget';
 import From from './page/From';
 import Home from './page/Home';
-import Info from './page/Info';
 import Login from './page/Login';
 import Nav from './page/Nav';
+import DashboardG from './page/DashboardG';
 
 // Wrap your routes inside the Nav component
 const router = createBrowserRouter([
@@ -38,26 +37,18 @@ const router = createBrowserRouter([
         path: "/forget", 
         element: <Forget />
       },
-      {
-        path: "/info", 
-        element: <Info/>
-      },
-      // {
-      //   path: "/google/:id", 
-      //   element: <Dashg/>
-
-      // },
-
-         {
-        path: "/google", 
-        element: <Dashg/>
-
-      },
+   
+ 
+ 
       {
         path: "/admin/:id", 
         element: <Admin/>
 
       },
+
+
+
+          { path: "/dashboardg", element: <DashboardG /> }, // lowercase recommended
     ]
   }
 ]);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Info from './Info'; // Import the Google Login component
+
 
 function Form() {
   const [name, setName] = useState('');
@@ -46,6 +46,11 @@ function Form() {
     }
   };
 
+
+    const handleGitHubLogin = () => {
+    window.location.href = 'http://localhost:9000/auth/github';
+  };
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -73,13 +78,15 @@ function Form() {
         />
         {errors.password && <p>{errors.password}</p>}
 
-        <button type="submit">Sign Up</button>
+        <button type="submit">Sign Up jugal</button>
       </form>
 
       <hr />
-
+     <button onClick={handleGitHubLogin}>
+        Login with GitHub
+      </button>
       {/* Google Login Button */}
-      <Info />
+  
     </div>
   );
 }

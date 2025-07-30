@@ -1,3 +1,9 @@
+
+
+
+
+// / --- > simple Code Line 
+
 const kafka = require("../client/client");
 const connectDB = require("../db/conn");
 const Register = require("../module/student");
@@ -22,7 +28,7 @@ async function initConsumer() {
           const userData = JSON.parse(message.value.toString());
           console.log(`📥 Received message: ${JSON.stringify(userData)}`);
 
-          const { name, email, password } = userData;
+           const { name, email, password,  reqMeta } = userData;
 
           if (!name || !email || !password) {
             console.error("❌ Missing required fields in message");
@@ -48,6 +54,38 @@ async function initConsumer() {
           const savedUser = await newUser.save();
           console.log("✅ User registered:", savedUser.email);
 
+     
+
+              // Generate JWT token and store in MongoDB
+    const tokenJwt = await savedUser.generateAuthtokens(); // <-- Here, result is the new user
+
+    console.log(tokenJwt)
+
+    // 4. Session token using simulated req
+     
+     const fakeReq = {
+      headers: {
+        "x-forwarded-for": reqMeta.ip,
+        "user-agent": reqMeta.headers.userAgent
+      },
+      socket: { remoteAddress: reqMeta.ip }
+    };
+
+    await savedUser.generateSessionToken(fakeReq);
+
+    await savedUser.generateUserInfomration(
+      reqMeta.referer,
+      reqMeta.ip,
+      reqMeta.hostname,
+      reqMeta.originalUrl,
+      reqMeta.protocol,
+      reqMeta.headers.connection,
+      reqMeta.headers.host,
+      reqMeta.headers.secChUaPlatform || "Unknown",
+      reqMeta.headers.acceptLanguage || "Unknown",
+      reqMeta.headers.secChUa || "Unknown"
+    );
+
           await emailQueue.add("send-welcome-email", {
             name,
             email,
@@ -55,6 +93,7 @@ async function initConsumer() {
           });
 
         } catch (err) {
+          console.log(err)
           console.error("❌ Error processing message:", err.message);
         }
       },

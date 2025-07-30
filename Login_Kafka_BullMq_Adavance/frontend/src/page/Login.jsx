@@ -1,134 +1,88 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from "react-router-dom";
-import './style/login.css';
-import cookie from "js-cookie"
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import cookie from 'js-cookie';
+
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [pass, setPass] = useState('');
+  const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [error, setError] = useState('');
+  const [serverMessage, setServerMessage] = useState('');
 
-  const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState(''); // For server-side errors
-
-  let timeout;
-  
-  useEffect(() => {
-    return () => {
-      // Clear timeout on component unmount
-      clearTimeout(timeout);
-    };
-  }, []);
-
-  const validate = () => {
-    const errors = {};
-
-    if (!email) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = 'Invalid email format';
-    }
-
-    if (!pass) {
-      errors.password = 'Password is required';
-    } else if (pass.length < 7) {
-      errors.password = 'Password must be at least 7 characters';
-    }
-
-    return errors;
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
+    setServerMessage('');
 
-    const validationErrors = validate();
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length > 0) {
-      return; // Exit if validation fails
+    if (!email || !password || !otp) {
+      setError('All fields are required');
+      return;
     }
 
-    clearTimeout(timeout);
-    timeout = setTimeout(async () => {
-      try {
-        const response = await fetch("http://localhost:9000/v1/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password: pass }),
-        });
+    try {
+      const res = await fetch("http://localhost:9000/v1/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, otp }),
+      });
 
-        const res = await response.json();
+      const data = await res.json();
 
-        if (response.status === 401) {
-          setServerError('Unauthorized: Invalid email or password');
-          return;
-        }
-
-        if (response.status === 201) {
-          alert("Check your form for errors");
-        } else {
-          console.log(res, 'user information');
-
-          console.log(res.token)
-       
-
-          if ( !res.token) {
-            console.log("Cookie not added: Token is missing or invalid");
-        } else {
-            cookie.set("usersdatatoken", res.token, {
-          
-                sameSite: "Strict",
-                expires: 1 // Expires in 1 day
-            });
-            console.log("Cookie added successfully!");
-        }
-       
-
-      
-          //navigate("/"); // Redirect to a different route after successful login
-        }
-      } catch (error) {
-        console.error("Error during fetch:", error);
-        setServerError('An unexpected error occurred. Please try again.');
+      if (res.status !== 200) {
+        setError(data.error || "Login failed");
+        return;
       }
-    }, 2000);
+
+      cookie.set("usersdatatoken", data.token, {
+        expires: 1,
+        sameSite: "Strict",
+      });
+
+      setServerMessage(data.message);
+      alert("🎉 Login successful!");
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      setError("Server error during login");
+    }
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div style={{ maxWidth: '400px', margin: 'auto', padding: '20px' }}>
+      <h2>Login</h2>
+      <form onSubmit={handleLogin}>
         <input
           type="email"
-          placeholder="Enter your email"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          style={{ width: '100%', marginBottom: '10px' }}
         />
-        {errors.email && <p className="error">{errors.email}</p>}
-
-        <br /><br />
-
         <input
           type="password"
-          placeholder="Enter your password"
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ width: '100%', marginBottom: '10px' }}
         />
-        {errors.password && <p className="error">{errors.password}</p>}
+        <input
+          type="text"
+          placeholder="OTP"
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
+          style={{ width: '100%', marginBottom: '10px' }}
+        />
 
-        <br /><br />
+        <button type="submit" style={{ width: '100%', padding: '10px' }}>
+          Login
+        </button>
 
-        <button type="submit">Login</button>
-        {serverError && <p className="error">{serverError}</p>}
+        {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+        {serverMessage && <p style={{ color: 'green', marginTop: '10px' }}>{serverMessage}</p>}
       </form>
     </div>
   );
 }
 
 export default Login;
-
-//Etherworld
-
-//Ether123@gmail.com
-
-//ether786

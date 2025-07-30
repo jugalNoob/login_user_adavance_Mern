@@ -1,18 +1,16 @@
 const { sendMessage, initProducer } = require("../producer/producer_forget");
 
+
 exports.forgetUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { id, email } = req.params;
+    const { password } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || !id) {
       return res.status(400).json({ error: "❌ Missing required fields" });
-
-    
     }
 
-
-
-    const forgetData = { email, password };
+    const forgetData = { id, email, password }; // ✅ Include ID
 
     await sendMessage("forget_user", forgetData);
 
@@ -26,12 +24,9 @@ exports.forgetUser = async (req, res) => {
   }
 };
 
-// // Only once globally
-initProducer();
 
 
-
-
+ initProducer()
 
 // const Register = require();
 

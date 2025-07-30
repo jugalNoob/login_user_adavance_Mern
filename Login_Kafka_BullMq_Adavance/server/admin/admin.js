@@ -62,7 +62,7 @@ async function init() {
     ],
   });
 
-  console.log("✅ Topics Created Successfully [signUp, login ]");
+  console.log("✅ Topics Created Successfully [signUp, login , forget ]");
 
   console.log("🔌 Disconnecting Admin...");
   await admin.disconnect();

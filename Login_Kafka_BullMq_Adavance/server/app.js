@@ -60,7 +60,7 @@
 require('dotenv').config(); // Load env vars early
 
 const express = require("express");
-// const session = require('express-session');
+const session = require('express-session');
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
 const cookieParser = require('cookie-parser');
@@ -71,6 +71,10 @@ const router = require("./routes/router");
 const startServer = require('./Cluster/clust');
 const redisClient = require("./Redis/redisClient");
 const TimeDate = require("./rateLimite/rate");
+const ZodValid=require("./middleware/validateSignup")
+const githubRoutes = require('./routes/router'); // or './routes/githubRoutes'
+
+
 
 const app = express();
 const port = 9000;
@@ -81,57 +85,60 @@ const corsOptions = {
   credentials: true,
 };
 
-// Sessions
-// app.use(session({
-//   secret: process.env.SESSION_SECRET || 'fallback_secret',
-//   resave: false,
 
-//   saveUninitialized: true,
-// }));
-// Passport GitHub Strategy
-// passport.use(new GitHubStrategy({
-//     clientID: process.env.GITHUB_CLIENT_ID,
-//     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-//     callbackURL: "http://localhost:9000/auth/github/callback"
-//   },
-//   function(accessToken, refreshToken, profile, done) {
-//     console.log("✅ GitHub Profile:", profile);
-//     return done(null, profile);
-//   }
-// ));
 
-// passport.serializeUser((user, done) => {
-//   done(null, user);
-// });
-// passport.deserializeUser((obj, done) => {
-//   done(null, obj);
-// });
+// --- Session Setup (Memory-based) ---
+app.use(session({
+  secret: process.env.SESSION_SECRET || "default_secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false, // Set true if using HTTPS
+    maxAge: 1000 * 60 * 60 * 24 // 1 day
+  }
+}));
 
-// // GitHub Auth Routes
-// app.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
+// --- Passport Setup ---
+app.use(passport.initialize());
+app.use(passport.session());
 
-// app.get('/auth/github/callback',
-//   passport.authenticate('github', { failureRedirect: '/login/failed' }),
-//   function(req, res) {
-//     // Successful login
-//     res.redirect('http://localhost:3000/dashboard');
-//   }
-// );
-
-app.get('/login/failed', (req, res) => {
-  res.status(401).json({ message: 'GitHub Login Failed ❌' });
+passport.serializeUser((user, done) => {
+  done(null, user);
 });
+
+passport.deserializeUser((obj, done) => {
+  done(null, obj);
+});
+
+// --- GitHub OAuth Strategy ---
+passport.use(new GitHubStrategy({
+    clientID: process.env.Client_IDGit,
+    clientSecret: process.env.Client_secretGit,
+    callbackURL: process.env.GITHUB_CALLBACK_URL || "http://localhost:9000/auth/github/callback"
+  },
+  function (accessToken, refreshToken, profile, done) {
+    console.log("GitHub Profile:", profile);
+    // You can store user info in DB here
+    return done(null, profile);
+  }
+));
+
+
+
+
 
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(TimeDate);
-// app.use(passport.initialize());
-// app.use(passport.session());
-app.use(router); // All other API routes
 
+app.use(TimeDate);
+
+
+app.use(router); // All other API routes
+app.use(githubRoutes);
 // Graceful Shutdown
 process.on("SIGINT", async () => {
   console.log("Shutting down server...");

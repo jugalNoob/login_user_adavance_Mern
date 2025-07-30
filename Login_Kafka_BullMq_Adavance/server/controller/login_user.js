@@ -12,13 +12,15 @@ exports.loginUser = async (req, res) => {
   try {
     const { email, password, otp } = req.body;
 
-    if (!email || !password || !otp) {
-      return res.status(400).json({ error: "All fields are required" });
+    if (!email || !password ) {
+      return res.status(400).json({ error: "All fields are required jugal" });
     }
 
     const userValid = await Register.findOne({ email });
-    if (!userValid) {
-      return res.status(404).json({ error: "User not found" });
+ 
+
+     if (!userValid) {
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
     const storedOtp = await redis.get(`otp:${email}`);
@@ -30,8 +32,8 @@ exports.loginUser = async (req, res) => {
       return res.status(410).json({ error: "OTP expired or not found" });
     }
 
-if (otp.toString() !== storedOtp.toString()) {
-  return res.status(401).json({ error: "Invalid OTP" });
+    if (!otp || otp.toString() !== storedOtp.toString()) {
+  return res.status(401).json({ error: "Invalid or missing OTP" });
 }
 
     await redis.del(`otp:${email}`);

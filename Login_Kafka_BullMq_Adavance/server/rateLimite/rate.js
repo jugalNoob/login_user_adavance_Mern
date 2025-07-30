@@ -3,7 +3,7 @@ let resetInProgress = false; // Prevent multiple resets
 
 // Middleware for counter logic
 const counterMiddleware = (req, res, next) => {
-    if (one >= 15) {
+    if (one >= 25) {
         if (!resetInProgress) {
             resetInProgress = true;
             console.log("Reset will occur in 5 seconds.");
@@ -19,7 +19,7 @@ const counterMiddleware = (req, res, next) => {
         return res.status(429).json({
             error: "Too Many Requests",
             message: "Please wait a few seconds before trying again. because user try Too Many Requests just wait 5 second",
-            retryAfter: 5 // Recommended delay (in seconds)
+            retryAfter: 15// Recommended delay (in seconds)
         });
     }
 
