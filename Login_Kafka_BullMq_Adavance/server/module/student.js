@@ -32,6 +32,12 @@ const studentSchema = new mongoose.Schema({
     password: { type: String, required:true},
     date: { type: Date, default: Date.now }, // Default date time
     shortId: { type: String, unique: true }, // Ensure shortId is unique
+
+     role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
+  },
     tokens:[
         {
             token:{

@@ -9,6 +9,7 @@ import Home from './page/Home';
 import Login from './page/Login';
 import Nav from './page/Nav';
 import DashboardG from './page/DashboardG';
+import Admin from './page/Admin'
 
 // Wrap your routes inside the Nav component
 const router = createBrowserRouter([
@@ -38,7 +39,7 @@ const router = createBrowserRouter([
         element: <Forget />
       },
    
- 
+      { path: "/admin", element: <Admin/> }, // lowercase recommended
  
       {
         path: "/admin/:id", 

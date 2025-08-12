@@ -1,0 +1,22 @@
+PORT="9000"
+
+DATABASE="mongodb+srv://jugal786:jugal786@cluster0.sgg8t.mongodb.net/ones?retryWrites=true&w=majority"
+
+SECRET_KEY=khjjhuhuidsuiuiojfsioujiojfuvuiojfvjiofvdoiujfvdoiujvfoijvf
+
+
+Clientids="695701344704-kcb2fmes8vkgh915n2hpp782uqt3jms0.apps.googleusercontent.com"
+
+ClientSecrets="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"
+
+sessionsecret="kjldscjhdschicfsuhgcsduhgcdsfuhgcdsfuyhgcfsuhguhgcfs",
+
+
+  Client_IDGit="Ov23liTbdIAk9WZgNtiA"
+
+
+
+ Client_secretGit="3f662645ca7ec3d2916e00c2eb34df622e7e69cf" 
+
+
+# https://console.cloud.google.com/auth/clients/create?project=mernstacklogin-454511

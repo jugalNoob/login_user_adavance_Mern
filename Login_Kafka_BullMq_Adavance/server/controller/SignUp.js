@@ -2,12 +2,35 @@ const { initProducer, sendMessage } = require("../producer/producer_sig");
 const shortid = require('shortid'); // Import shortid library
 exports.signUP = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    // const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      console.warn("⚠️ Missing required fields. Skipping Kafka send.");
-      return res.status(400).json({ error: "❌ Missing required fields" });
-    }
+    // if (!name || !email || !password) {
+    //   console.warn("⚠️ Missing required fields. Skipping Kafka send.");
+    //   return res.status(400).json({ error: "❌ Missing required fields" });
+    // }
+
+
+      // all fields are required  :::
+   const { name, email, password, secretCode } = req.body;
+
+
+   const role = req.body.secretCode === process.env.ADMIN_SECRET ? 'admin' : 'user';
+if (secretCode !== process.env.ADMIN_SECRET) {
+  console.log("❌ SecretCode does NOT match. Falling back to user role.");
+} else {
+  console.log("✅ SecretCode matched. Setting role to admin.");
+}
+
+console.log(role)
+
+console.log("Received:", secretCode);
+
+      // full body object
+console.log("SecretCode:", secretCode);  // specific field
+console.log("Env ADMIN_SECRET:", process.env.ADMIN_SECRET);
+
+    
+
 
     // --> Simple ------>>
     // const user = { name, email, password };
